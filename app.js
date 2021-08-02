@@ -1,28 +1,37 @@
 const express = require("express");
-const path = require("path");
 const app = express();
+const { products } = require("./data");
 
-//setup static and middleware
-app.use(express.static("./public"));
+app.get("/", (req, res) => {
+  res.send("<h1>home page</h1><a href='/api/products'>product</a>");
+});
 
-/* app.get("/", (req, res) => {
-  res.sendFile(path.resolve(__dirname, "./navbar-app/index.html"));
-  adding to static assets
-  SSR - server side rendering
-}); */
+app.get("/api/products", (req, res) => {
+  const newProduct = products.map((product) => {
+    const { id, name, image } = product;
+    return { id, name, image };
+  });
+  res.json(newProduct);
+});
 
-app.all("*", (req, res) => {
-  res.status(404).send("<h1>404 FUCK OFF</h1>");
+app.get("/api/products/:productID", (req, res) => {
+  //console.log(req);
+  //console.log(req.params);
+  const { productID } = req.params;
+  const singleProduct = products.find(
+    (product) => product.id === Number(productID)
+  );
+  if (!singleProduct) {
+    return res.status(404).send("Product does not exist!");
+  }
+  res.json(singleProduct);
+});
+
+app.get("/api/products/:productID/reviews/:reviewID", (req, res) => {
+  console.log(req.params);
+  res.send("hello world");
 });
 
 app.listen(5000, () => {
-  console.log("Server is listening on port: 5000");
+  console.log("Server listening on port 5000");
 });
-
-//app.get
-//app.post
-//app.put
-//app.delete
-//app.all
-//app.use
-//app.listen
